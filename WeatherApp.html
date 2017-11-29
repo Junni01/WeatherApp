@@ -1,0 +1,223 @@
+<script> var image = "<img src='raw.jpg'>"</script>
+<style type="text/css"> /* Copied these styles from you example workshop, I'm not that interested in CSS.  */
+
+    body{
+        font-family: Trebuchet MS;
+    }
+    table {
+        border-collapse: collapse;
+        width: 700px;
+        border: 1px solid black;
+    }
+    th, td {
+        padding: 4px;
+        font-family: Verdana;
+        font-size: 12px;
+    }
+    tr:nth-child(even) {
+        background-color: #f2f2f2
+    }
+    th, td {
+        border: 1px solid #ddd;
+    }
+    td {
+        height: 40px;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+
+</style>
+<img src="logo.png"> </img>
+    <h1>Raw data</h1>
+	<button onclick="displayRaw()">Display</button></br>
+    <div id="rawdata">Raw data goes here.</div></br>
+    <h1>Parsed Json data for London</h1>
+	<button onclick="displayParsed()">Display</button></br>
+    <div id="weatherdata">
+        <table>
+        <tr>
+            <td>City: </td>
+            <td>Temperature: °C</td>
+            <td>Humidity: %</td>
+            <td>Weather: </td>
+            <td></td>
+        </tr>
+        </table>
+
+    </div></br>
+<h1>Dropdown weather data</h1>
+<p>Select a city from the list:
+  <select name="mySelect" id="city" onchange="displayDropdownWeather()">
+    <option value="Helsinki">Helsinki</option>
+    <option value="Stockholm">Stockholm</option>
+    <option value="Rome">Rome</option>
+    <option value="New York">New York</option>
+  </select>
+<br/>
+
+<div id="dropdownData">
+    <table>
+        <tr>
+            <td>City: </td>
+            <td>Temperature: °C</td>
+            <td>Humidity: %</td>
+            <td>Weather: </td>
+            <td></td>
+        </tr>
+    </table>
+</div></br>
+<h1>Search data</h1>
+Or type in a search query: <input id="citysearch"></input><button id="search" onclick="displaySearchWeather()">Search</button></br>
+
+<div id="searchdata">
+    <table>
+        <tr>
+            <td>City: </td>
+            <td>Temperature: °C</td>
+            <td>Humidity: %</td>
+            <td>Weather: </td>
+            <td></td>
+        </tr>
+    </table>
+</div>
+
+</body>
+<script>
+    var xmlhttp = new XMLHttpRequest();
+    var temp;
+    var humidity;
+    var weather;
+    var icon;
+    var taggedIcon;
+    var name;
+	var raakaData;
+    var jsonObj;
+    var dropdown;
+    var cityChoice;
+
+	var url = "http://api.openweathermap.org/data/2.5/weather?q=London,uk&units=metric&appid=97fa35612b79da436de9317c2fe97322"
+
+	xmlhttp.open("GET", url, true);
+	xmlhttp.send();
+	
+	xmlhttp.onreadystatechange = function() {
+
+
+        if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+
+            raakaData = xmlhttp.responseText;
+
+            jsonObj = JSON.parse(xmlhttp.responseText);
+
+        }
+	
+
+	
+	}
+    function displayRaw() {
+		document.getElementById("rawdata").innerHTML = raakaData + "</br>" + image;
+		
+		
+	}
+	
+    function displayParsed() {
+    name = jsonObj.name;
+	temp = jsonObj.main.temp;
+	humidity = jsonObj.main.humidity;
+	weather = jsonObj.weather[0].main;
+    icon = jsonObj.weather[0].icon;
+    taggedIcon = "<img id='bean' src='http://openweathermap.org/img/w/" + icon + ".png'>";
+
+    document.getElementById("weatherdata").innerHTML = "<table>" + "<tr>" + "<td>" + "City: " + name + "</td>" + "<td>" + "Temperature: " + temp + "°C" + "</td>" + "<td>" + "Humidity: " + humidity + "%" + "</td>" + "<td>" + "Weather: " + weather + "</td>" + "<td>" + taggedIcon + "</td>" + "</tr>" + "</table>"
+    document.getElementById("bean").style.width = "50px";
+
+
+}
+
+    function displayDropdownWeather() {
+
+	    dropdown = document.getElementById("city");
+        cityChoice = dropdown[dropdown.selectedIndex].value
+
+
+        switch(cityChoice) {
+
+                case "Helsinki":  url = "http://api.openweathermap.org/data/2.5/weather?q=Helsinki&units=metric&appid=97fa35612b79da436de9317c2fe97322";
+                break;
+
+                case "Stockholm": url = "http://api.openweathermap.org/data/2.5/weather?q=Stockholm&units=metric&appid=97fa35612b79da436de9317c2fe97322";
+                break;
+                case "Rome": url = "http://api.openweathermap.org/data/2.5/weather?q=Rome&units=metric&appid=97fa35612b79da436de9317c2fe97322";
+                break;
+                case "New York": url = "http://api.openweathermap.org/data/2.5/weather?q=New York&units=metric&appid=97fa35612b79da436de9317c2fe97322";
+                break;
+                }
+
+        xmlhttp.open("GET", url, true);
+        xmlhttp.send();
+
+        xmlhttp.onreadystatechange = function() {
+
+            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+
+                jsonObj = JSON.parse(xmlhttp.responseText);
+
+                name = jsonObj.name;
+                temp = jsonObj.main.temp;
+                humidity = jsonObj.main.humidity;
+                weather = jsonObj.weather[0].main;
+                icon = jsonObj.weather[0].icon;
+                taggedIcon = "<img src='http://openweathermap.org/img/w/" + icon + ".png'></img>"
+
+                document.getElementById("dropdownData").innerHTML = "<table>" + "<tr>" + "<td>" + "City: " + name + "</td>" + "<td>" + "Temperature: " + temp + "°C" + "</td>" + "<td>" + "Humidity: " + humidity + "%" + "</td>" + "<td>" + "Weather: " + weather + "</td>" + "<td>" + taggedIcon + "</td>" + "</tr>" + "</table>"
+            }
+
+        }
+
+
+
+
+
+
+    }
+
+    function displaySearchWeather() {
+
+        var searchText = document.getElementById("citysearch").value;
+
+        url = "http://api.openweathermap.org/data/2.5/weather?q=" + searchText + "&units=metric&appid=97fa35612b79da436de9317c2fe97322";
+
+
+        xmlhttp.open("GET", url, true);
+        xmlhttp.send();
+
+        xmlhttp.onreadystatechange = function() {
+
+            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+
+                jsonObj = JSON.parse(xmlhttp.responseText);
+
+                name = jsonObj.name;
+                temp = jsonObj.main.temp;
+                humidity = jsonObj.main.humidity;
+                weather = jsonObj.weather[0].main;
+                icon = jsonObj.weather[0].icon;
+                taggedIcon = "<img src='http://openweathermap.org/img/w/" + icon + ".png'></img>"
+
+                document.getElementById("searchdata").innerHTML = "<table>" + "<tr>" + "<td>" + "City: " + name + "</td>" + "<td>" + "Temperature: " + temp + "°C" + "</td>" + "<td>" + "Humidity: " + humidity + "%" + "</td>" + "<td>" + "Weather: " + weather + "</td>" + "<td>" + taggedIcon + "</td>" + "</tr>" + "</table>"
+            } else {
+
+                document.getElementById("searchdata").innerHTML = "<p> City not Found </p>";
+            }
+
+        }
+
+
+
+
+
+
+    }
+
+</script>
